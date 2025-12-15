@@ -78,6 +78,7 @@ def generate_flowchart(code, lang):
 
     lines = [l.strip() for l in code.split("\n") if l.strip()]
 
+    # SIMPLE
     if not has_if and not has_loop:
         var = extract_assignment(lines[0]) if lines else "Data"
         diagram += [
@@ -88,8 +89,11 @@ def generate_flowchart(code, lang):
         ]
         return "\n".join(diagram)
 
+    # IF ONLY
     if has_if and not has_loop:
-        cond = extract_condition(next(l for l in lines if l.startswith("if")))
+        cond_line = next((l for l in lines if l.startswith("if")), None)
+        cond = extract_condition(cond_line) if cond_line else "Condition"
+
         diagram += [
             "S([Start]):::start",
             f'D{{{cond}}}:::decision',
@@ -102,8 +106,11 @@ def generate_flowchart(code, lang):
         ]
         return "\n".join(diagram)
 
+    # LOOP ONLY
     if has_loop and not has_if:
-        loop = extract_loop(next(l for l in lines if l.startswith(("for","while"))))
+        loop_line = next((l for l in lines if l.startswith(("for","while"))), None)
+        loop = extract_loop(loop_line) if loop_line else "Loop Condition"
+
         diagram += [
             "S([Start]):::start",
             f'D{{{loop}}}:::decision',
@@ -115,8 +122,12 @@ def generate_flowchart(code, lang):
         ]
         return "\n".join(diagram)
 
-    cond = extract_condition(next(l for l in lines if l.startswith("if")))
-    loop = extract_loop(next(l for l in lines if l.startswith(("for","while"))))
+    # IF + LOOP
+    cond_line = next((l for l in lines if l.startswith("if")), None)
+    loop_line = next((l for l in lines if l.startswith(("for","while"))), None)
+
+    cond = extract_condition(cond_line) if cond_line else "Condition"
+    loop = extract_loop(loop_line) if loop_line else "Loop Condition"
 
     diagram += [
         "S([Start]):::start",
